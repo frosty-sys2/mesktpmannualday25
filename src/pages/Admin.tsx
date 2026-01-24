@@ -9,6 +9,7 @@ import { LogOut, Calendar, Image, Link } from 'lucide-react';
 import { ScheduleManager } from '@/components/admin/ScheduleManager';
 import { MediaManager } from '@/components/admin/MediaManager';
 import { LinksManager } from '@/components/admin/LinksManager';
+import { setAdminPassword, clearAdminPassword } from '@/lib/adminApi';
 
 const ADMIN_PASSWORD = 'Vasudev@2012';
 
@@ -24,6 +25,7 @@ const Admin = () => {
     // Simple password check
     setTimeout(() => {
       if (password === ADMIN_PASSWORD) {
+        setAdminPassword(password);
         setIsAuthenticated(true);
         toast.success('Logged in successfully');
       } else {
@@ -34,6 +36,7 @@ const Admin = () => {
   };
 
   const handleLogout = () => {
+    clearAdminPassword();
     setIsAuthenticated(false);
     setPassword('');
     toast.success('Logged out successfully');

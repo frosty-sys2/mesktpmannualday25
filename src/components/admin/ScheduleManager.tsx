@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { scheduleApi } from '@/lib/adminApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Plus, Trash2, Save, GripVertical, X } from 'lucide-react';
 
@@ -25,22 +25,15 @@ export const ScheduleManager = () => {
 
   const fetchSchedules = async () => {
     try {
-      const { data, error } = await supabase
-        .from('programme_schedule')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
-
-      const formattedSchedules = (data || []).map(item => ({
+      const data = await scheduleApi.list();
+      const formattedSchedules = (data || []).map((item: any) => ({
         ...item,
         table_data: Array.isArray(item.table_data) ? item.table_data as string[][] : [],
         column_headers: Array.isArray(item.column_headers) ? item.column_headers as string[] : []
       }));
-
       setSchedules(formattedSchedules);
     } catch (error: any) {
-      toast.error('Failed to load schedules');
+      toast.error('Failed to load schedules: ' + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -68,14 +61,10 @@ export const ScheduleManager = () => {
     
     if (!schedule.id.startsWith('temp-')) {
       try {
-        const { error } = await supabase
-          .from('programme_schedule')
-          .delete()
-          .eq('id', schedule.id);
-        if (error) throw error;
+        await scheduleApi.delete(schedule.id);
         toast.success('Schedule deleted');
       } catch (error: any) {
-        toast.error('Failed to delete schedule');
+        toast.error('Failed to delete: ' + error.message);
         return;
       }
     }
@@ -138,23 +127,16 @@ export const ScheduleManager = () => {
         };
 
         if (schedule.id.startsWith('temp-')) {
-          const { error } = await supabase
-            .from('programme_schedule')
-            .insert(data);
-          if (error) throw error;
+          await scheduleApi.insert(data);
         } else {
-          const { error } = await supabase
-            .from('programme_schedule')
-            .update(data)
-            .eq('id', schedule.id);
-          if (error) throw error;
+          await scheduleApi.update(schedule.id, data);
         }
       }
 
       toast.success('All schedules saved!');
       fetchSchedules();
     } catch (error: any) {
-      toast.error('Failed to save schedules');
+      toast.error('Failed to save: ' + error.message);
     } finally {
       setIsSaving(false);
     }

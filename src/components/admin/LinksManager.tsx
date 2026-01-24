@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { linksApi } from '@/lib/adminApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,15 +26,10 @@ export const LinksManager = () => {
 
   const fetchLinks = async () => {
     try {
-      const { data, error } = await supabase
-        .from('quick_links')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
+      const data = await linksApi.list();
       setLinks(data || []);
     } catch (error: any) {
-      toast.error('Failed to load links');
+      toast.error('Failed to load links: ' + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -62,14 +57,10 @@ export const LinksManager = () => {
 
     if (!link.id.startsWith('temp-')) {
       try {
-        const { error } = await supabase
-          .from('quick_links')
-          .delete()
-          .eq('id', link.id);
-        if (error) throw error;
+        await linksApi.delete(link.id);
         toast.success('Link deleted');
       } catch (error: any) {
-        toast.error('Failed to delete link');
+        toast.error('Failed to delete: ' + error.message);
         return;
       }
     }
@@ -99,21 +90,16 @@ export const LinksManager = () => {
         };
 
         if (link.id.startsWith('temp-')) {
-          const { error } = await supabase.from('quick_links').insert(data);
-          if (error) throw error;
+          await linksApi.insert(data);
         } else {
-          const { error } = await supabase
-            .from('quick_links')
-            .update(data)
-            .eq('id', link.id);
-          if (error) throw error;
+          await linksApi.update(link.id, data);
         }
       }
 
       toast.success('All links saved!');
       fetchLinks();
     } catch (error: any) {
-      toast.error('Failed to save links');
+      toast.error('Failed to save: ' + error.message);
     } finally {
       setIsSaving(false);
     }
