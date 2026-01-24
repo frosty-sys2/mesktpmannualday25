@@ -27,7 +27,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { action, table, data, id } = await req.json();
+    const { action, table, data, id, key, value } = await req.json();
 
     let result;
 
@@ -106,6 +106,35 @@ serve(async (req) => {
           .from(delBucket)
           .remove([delPath]);
         if (delFileError) throw delFileError;
+        result = { success: true };
+        break;
+
+      case "getSetting":
+        const { data: settingData, error: settingError } = await supabase
+          .from("site_settings")
+          .select("*")
+          .eq("key", key)
+          .maybeSingle();
+        if (settingError) throw settingError;
+        result = settingData;
+        break;
+
+      case "setSetting":
+        const { data: setData, error: setError } = await supabase
+          .from("site_settings")
+          .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: "key" })
+          .select()
+          .single();
+        if (setError) throw setError;
+        result = setData;
+        break;
+
+      case "deleteSetting":
+        const { error: delSettingError } = await supabase
+          .from("site_settings")
+          .delete()
+          .eq("key", key);
+        if (delSettingError) throw delSettingError;
         result = { success: true };
         break;
 
