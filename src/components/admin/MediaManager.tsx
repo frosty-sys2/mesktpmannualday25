@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { mediaApi } from '@/lib/adminApi';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,15 +39,10 @@ export const MediaManager = () => {
 
   const fetchMedia = async () => {
     try {
-      const { data, error } = await supabase
-        .from('media_gallery')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
+      const data = await mediaApi.list();
       setMedia(data || []);
     } catch (error: any) {
-      toast.error('Failed to load media');
+      toast.error('Failed to load media: ' + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -63,27 +59,19 @@ export const MediaManager = () => {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `uploads/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('media')
-        .getPublicUrl(filePath);
+      const result = await mediaApi.upload(file, filePath);
 
       const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
 
       setNewMedia({
         ...newMedia,
-        url: publicUrl,
+        url: result.publicUrl,
         media_type: mediaType,
       });
 
       toast.success('File uploaded successfully');
     } catch (error: any) {
-      toast.error('Failed to upload file');
+      toast.error('Failed to upload: ' + error.message);
     } finally {
       setIsUploading(false);
     }
@@ -96,58 +84,42 @@ export const MediaManager = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('media_gallery')
-        .insert({
-          title: newMedia.title || null,
-          description: newMedia.description || null,
-          media_type: newMedia.media_type,
-          url: newMedia.url,
-          display_order: media.length,
-        });
-
-      if (error) throw error;
+      await mediaApi.insert({
+        title: newMedia.title || null,
+        description: newMedia.description || null,
+        media_type: newMedia.media_type,
+        url: newMedia.url,
+        display_order: media.length,
+      });
 
       toast.success('Media added successfully');
       setNewMedia({ title: '', description: '', media_type: 'image', url: '' });
       fetchMedia();
     } catch (error: any) {
-      toast.error('Failed to add media');
+      toast.error('Failed to add media: ' + error.message);
     }
   };
 
   const deleteMedia = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('media_gallery')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
+      await mediaApi.delete(id);
       toast.success('Media deleted');
       setMedia(media.filter((m) => m.id !== id));
     } catch (error: any) {
-      toast.error('Failed to delete media');
+      toast.error('Failed to delete: ' + error.message);
     }
   };
 
   const toggleFeatured = async (id: string, currentState: boolean) => {
     try {
-      const { error } = await supabase
-        .from('media_gallery')
-        .update({ is_featured: !currentState })
-        .eq('id', id);
-
-      if (error) throw error;
-
+      await mediaApi.update(id, { is_featured: !currentState });
       setMedia(
         media.map((m) =>
           m.id === id ? { ...m, is_featured: !currentState } : m
         )
       );
     } catch (error: any) {
-      toast.error('Failed to update');
+      toast.error('Failed to update: ' + error.message);
     }
   };
 
