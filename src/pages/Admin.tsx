@@ -1,65 +1,45 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAdmin } from '@/hooks/useAdmin';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { LogOut, Calendar, Image, Link, Settings } from 'lucide-react';
+import { LogOut, Calendar, Image, Link } from 'lucide-react';
 import { ScheduleManager } from '@/components/admin/ScheduleManager';
 import { MediaManager } from '@/components/admin/MediaManager';
 import { LinksManager } from '@/components/admin/LinksManager';
 
+const ADMIN_PASSWORD = 'Vasudev@2012';
+
 const Admin = () => {
-  const navigate = useNavigate();
-  const { isAdmin, isLoading, user } = useAdmin();
-  const [email, setEmail] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
-
-  useEffect(() => {
-    if (!isLoading && user && !isAdmin) {
-      toast.error('You do not have admin access');
-      supabase.auth.signOut();
-    }
-  }, [isLoading, user, isAdmin]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthLoading(true);
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-      toast.success('Logged in successfully');
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
+    // Simple password check
+    setTimeout(() => {
+      if (password === ADMIN_PASSWORD) {
+        setIsAuthenticated(true);
+        toast.success('Logged in successfully');
+      } else {
+        toast.error('Incorrect password');
+      }
       setAuthLoading(false);
-    }
+    }, 500);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setPassword('');
     toast.success('Logged out successfully');
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (!user || !isAdmin) {
+  if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md border-border bg-card">
@@ -68,22 +48,11 @@ const Admin = () => {
               <span className="text-gradient-gold">Admin</span> Panel
             </CardTitle>
             <CardDescription>
-              Sign in to manage the Annual Day website
+              Enter password to manage the Annual Day website
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
-                  required
-                />
-              </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -93,6 +62,7 @@ const Admin = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
+                  autoFocus
                 />
               </div>
               <Button
