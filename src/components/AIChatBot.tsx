@@ -189,7 +189,7 @@ export const AIChatBot = () => {
               className="w-16 h-16 rounded-full bg-primary shadow-lg flex items-center justify-center animate-glow overflow-hidden"
               style={{ boxShadow: '0 0 30px hsla(42, 78%, 60%, 0.4)' }}
             >
-              <img src={aiLogo} alt="AI" className="w-20 h-20 object-cover scale-125" />
+              <img src={aiLogo} alt="AI" className="w-16 h-16 object-cover scale-110" />
             </motion.button>
           </motion.div>
         )}
