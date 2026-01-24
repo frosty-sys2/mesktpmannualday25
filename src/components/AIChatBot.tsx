@@ -4,7 +4,7 @@ import { X, Send, Loader2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import mesLogo from '@/assets/mes-logo.jpg';
+import aiLogo from '@/assets/ai-logo.png';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 
@@ -189,7 +189,7 @@ export const AIChatBot = () => {
               className="w-16 h-16 rounded-full bg-primary shadow-lg flex items-center justify-center animate-glow overflow-hidden"
               style={{ boxShadow: '0 0 30px hsla(42, 78%, 60%, 0.4)' }}
             >
-              <img src={mesLogo} alt="AI" className="w-14 h-14 object-cover" />
+              <img src={aiLogo} alt="AI" className="w-14 h-14 object-cover" />
             </motion.button>
           </motion.div>
         )}
@@ -220,7 +220,7 @@ export const AIChatBot = () => {
               <div className="p-4 border-b border-border flex items-center justify-between bg-card/80 backdrop-blur">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
-                    <img src={mesLogo} alt="AI" className="w-10 h-10 object-cover" />
+                    <img src={aiLogo} alt="AI" className="w-10 h-10 object-cover" />
                   </div>
                   <div>
                     <p className="font-bold text-primary text-sm">ANNUAL DAY ASSISTANT</p>
@@ -246,7 +246,7 @@ export const AIChatBot = () => {
                 {messages.length === 0 && (
                   <div className="text-center py-8">
                     <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 overflow-hidden">
-                      <img src={mesLogo} alt="AI" className="w-20 h-20 object-cover" />
+                      <img src={aiLogo} alt="AI" className="w-20 h-20 object-cover" />
                     </div>
                     <h3 className="font-semibold text-foreground mb-2">Annual Day AI Assistant</h3>
                     <p className="text-sm text-muted-foreground mb-6">
