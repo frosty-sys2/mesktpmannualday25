@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Menu, X } from 'lucide-react';
+import mesLogo from '@/assets/mes-logo.jpg';
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,9 +33,10 @@ export const Navbar = () => {
       <div className="container mx-auto flex items-center justify-between px-4">
         <a
           href="/"
-          className="font-display text-xl font-bold text-foreground transition-colors hover:text-primary"
+          className="flex items-center gap-3 font-display text-xl font-bold text-foreground transition-colors hover:text-primary"
         >
-          <span className="text-gradient-gold">MES Campus School,</span> Kuttippuram
+          <img src={mesLogo} alt="MES Campus School" className="w-10 h-10 rounded-full object-cover" />
+          <span><span className="text-gradient-gold">MES Campus School,</span> Kuttippuram</span>
         </a>
 
         {/* Desktop Navigation */}
