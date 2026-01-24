@@ -34,7 +34,7 @@ export const Navbar = () => {
           href="/"
           className="font-display text-xl font-bold text-foreground transition-colors hover:text-primary"
         >
-          <span className="text-gradient-gold">MES</span> Annual Day
+          <span className="text-gradient-gold">MES Campus School,</span> Kuttippuram
         </a>
 
         {/* Desktop Navigation */}

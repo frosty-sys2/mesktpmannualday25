@@ -4,7 +4,7 @@ import { X, Send, Loader2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import cyberdoomLogo from '@/assets/cyberdoom-logo.png';
+import mesLogo from '@/assets/mes-logo.jpg';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 
@@ -186,10 +186,10 @@ export const AIChatBot = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsOpen(true)}
-              className="w-16 h-16 rounded-full bg-[#00ff00] shadow-lg flex items-center justify-center animate-glow"
-              style={{ boxShadow: '0 0 30px rgba(0, 255, 0, 0.4)' }}
+              className="w-16 h-16 rounded-full bg-primary shadow-lg flex items-center justify-center animate-glow overflow-hidden"
+              style={{ boxShadow: '0 0 30px hsla(42, 78%, 60%, 0.4)' }}
             >
-              <img src={cyberdoomLogo} alt="AI" className="w-10 h-10 object-contain" />
+              <img src={mesLogo} alt="AI" className="w-14 h-14 object-cover" />
             </motion.button>
           </motion.div>
         )}
@@ -219,15 +219,16 @@ export const AIChatBot = () => {
               {/* Header */}
               <div className="p-4 border-b border-border flex items-center justify-between bg-card/80 backdrop-blur">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#00ff00] flex items-center justify-center">
-                    <img src={cyberdoomLogo} alt="AI" className="w-6 h-6 object-contain" />
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+                    <img src={mesLogo} alt="AI" className="w-10 h-10 object-cover" />
                   </div>
                   <div>
+                    <p className="font-bold text-primary text-sm">ANNUAL DAY ASSISTANT</p>
                     <a 
                       href="https://cyberdoom.rf.gd" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm"
+                      className="text-foreground hover:text-primary transition-colors flex items-center gap-1 text-xs"
                     >
                       CyberDoom Agentic Ver.2
                       <ExternalLink className="w-3 h-3" />
@@ -244,8 +245,8 @@ export const AIChatBot = () => {
               <ScrollArea className="flex-1 p-4" ref={scrollRef}>
                 {messages.length === 0 && (
                   <div className="text-center py-8">
-                    <div className="w-20 h-20 rounded-full bg-[#00ff00]/20 flex items-center justify-center mx-auto mb-4">
-                      <img src={cyberdoomLogo} alt="AI" className="w-12 h-12 object-contain" />
+                    <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 overflow-hidden">
+                      <img src={mesLogo} alt="AI" className="w-20 h-20 object-cover" />
                     </div>
                     <h3 className="font-semibold text-foreground mb-2">Annual Day AI Assistant</h3>
                     <p className="text-sm text-muted-foreground mb-6">
