@@ -71,6 +71,16 @@ export const linksApi = {
   delete: (id: string) => adminRequest({ action: 'delete', table: 'quick_links', id }),
 };
 
+// Settings operations
+export const settingsApi = {
+  get: async (key: string) => {
+    const result = await adminRequest({ action: 'getSetting', key });
+    return result;
+  },
+  set: (key: string, value: any) => adminRequest({ action: 'setSetting', key, value }),
+  delete: (key: string) => adminRequest({ action: 'deleteSetting', key }),
+};
+
 // Utility function
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {

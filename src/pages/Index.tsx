@@ -1,5 +1,6 @@
 import { Navbar } from '@/components/Navbar';
 import { VideoHero } from '@/components/VideoHero';
+import { CountdownTimer } from '@/components/CountdownTimer';
 import { SchoolHighlights } from '@/components/SchoolHighlights';
 import { ProgrammeSchedule } from '@/components/ProgrammeSchedule';
 import { MediaGallery } from '@/components/MediaGallery';
@@ -13,6 +14,7 @@ const Index = () => {
       <Navbar />
       <main>
         <VideoHero />
+        <CountdownTimer />
         <SchoolHighlights />
         <ProgrammeSchedule />
         <MediaGallery />
