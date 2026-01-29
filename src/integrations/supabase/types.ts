@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_model_config: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          is_enabled: boolean
+          model_id: string
+          priority_order: number
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id?: string
+          is_enabled?: boolean
+          model_id: string
+          priority_order?: number
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_enabled?: boolean
+          model_id?: string
+          priority_order?: number
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      groq_api_keys: {
+        Row: {
+          api_key_encrypted: string
+          api_key_masked: string
+          created_at: string
+          id: string
+          is_enabled: boolean
+          priority_order: number
+        }
+        Insert: {
+          api_key_encrypted: string
+          api_key_masked: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          priority_order?: number
+        }
+        Update: {
+          api_key_encrypted?: string
+          api_key_masked?: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          priority_order?: number
+        }
+        Relationships: []
+      }
       media_gallery: {
         Row: {
           created_at: string

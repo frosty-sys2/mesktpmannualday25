@@ -37,6 +37,91 @@ You have access to the programme schedule, media gallery, and quick links for th
 
 Be helpful, friendly, and informative. Keep responses concise but thorough. If you don't know something specific, say so politely.`;
 
+interface AIModel {
+  model_id: string;
+  display_name: string;
+  provider: 'lovable' | 'groq';
+  is_enabled: boolean;
+  priority_order: number;
+}
+
+interface GroqApiKey {
+  api_key_encrypted: string;
+  priority_order: number;
+  is_enabled: boolean;
+}
+
+interface AIConfig {
+  models: AIModel[];
+  groqApiKeys: GroqApiKey[];
+  apiKeySelectionMode: 'ordered' | 'random';
+}
+
+async function callLovableAI(messages: any[], systemPrompt: string): Promise<Response> {
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) {
+    throw new Error("LOVABLE_API_KEY is not configured");
+  }
+
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash-lite",
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
+      stream: true,
+    }),
+  });
+
+  return response;
+}
+
+async function callGroqAI(
+  messages: any[], 
+  systemPrompt: string, 
+  modelId: string, 
+  apiKey: string
+): Promise<Response> {
+  console.log(`Calling Groq API with model: ${modelId}`);
+  
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: modelId,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
+      stream: true,
+    }),
+  });
+
+  return response;
+}
+
+function selectApiKey(keys: GroqApiKey[], mode: 'ordered' | 'random'): GroqApiKey | null {
+  const enabledKeys = keys.filter(k => k.is_enabled);
+  if (enabledKeys.length === 0) return null;
+
+  if (mode === 'random') {
+    const randomIndex = Math.floor(Math.random() * enabledKeys.length);
+    return enabledKeys[randomIndex];
+  }
+
+  // Ordered mode - return first enabled key
+  return enabledKeys.sort((a, b) => a.priority_order - b.priority_order)[0];
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -44,16 +129,24 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
-
     // Fetch dynamic data from database
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get AI configuration
+    const { data: aiConfigData } = await supabase
+      .from("site_settings")
+      .select("*")
+      .eq("key", "ai_config")
+      .maybeSingle();
+
+    const aiConfig: AIConfig = aiConfigData?.value || {
+      models: [{ model_id: 'google/gemini-2.5-flash-lite', provider: 'lovable', is_enabled: true, priority_order: 1 }],
+      groqApiKeys: [],
+      apiKeySelectionMode: 'ordered',
+    };
 
     // Get programme schedule
     const { data: schedules } = await supabase
@@ -111,46 +204,76 @@ serve(async (req) => {
 
     const systemPrompt = SCHOOL_KNOWLEDGE + dynamicContext;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        stream: true,
-      }),
-    });
+    // Get enabled models sorted by priority
+    const enabledModels = (aiConfig.models || [])
+      .filter(m => m.is_enabled)
+      .sort((a, b) => a.priority_order - b.priority_order);
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Payment required. Please add funds." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
+    if (enabledModels.length === 0) {
+      return new Response(JSON.stringify({ error: "No AI models are enabled" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    // Try each model in order until one succeeds
+    let lastError: Error | null = null;
+    
+    for (const model of enabledModels) {
+      try {
+        console.log(`Trying model: ${model.model_id} (${model.provider})`);
+        
+        let response: Response;
+        
+        if (model.provider === 'lovable') {
+          response = await callLovableAI(messages, systemPrompt);
+        } else {
+          // Groq model - need API key
+          const selectedKey = selectApiKey(aiConfig.groqApiKeys || [], aiConfig.apiKeySelectionMode);
+          
+          if (!selectedKey) {
+            console.log('No Groq API keys available, skipping Groq model');
+            continue;
+          }
+          
+          response = await callGroqAI(messages, systemPrompt, model.model_id, selectedKey.api_key_encrypted);
+        }
+
+        if (response.ok) {
+          console.log(`Model ${model.model_id} succeeded`);
+          return new Response(response.body, {
+            headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+          });
+        }
+
+        // Handle specific error codes
+        if (response.status === 429) {
+          console.log(`Model ${model.model_id} rate limited, trying next...`);
+          continue;
+        }
+        if (response.status === 402) {
+          console.log(`Model ${model.model_id} payment required, trying next...`);
+          continue;
+        }
+
+        const errorText = await response.text();
+        console.error(`Model ${model.model_id} failed:`, response.status, errorText);
+        lastError = new Error(`${model.model_id}: ${errorText}`);
+        
+      } catch (error) {
+        console.error(`Error with model ${model.model_id}:`, error);
+        lastError = error instanceof Error ? error : new Error(String(error));
+      }
+    }
+
+    // All models failed
+    return new Response(JSON.stringify({ 
+      error: lastError?.message || "All AI models failed. Please try again later." 
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (error) {
     console.error("Chat error:", error);
     return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {

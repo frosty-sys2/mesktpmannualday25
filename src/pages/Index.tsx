@@ -1,7 +1,6 @@
 import { Navbar } from '@/components/Navbar';
 import { VideoHero } from '@/components/VideoHero';
 import { CountdownTimer } from '@/components/CountdownTimer';
-import { SchoolHighlights } from '@/components/SchoolHighlights';
 import { ProgrammeSchedule } from '@/components/ProgrammeSchedule';
 import { MediaGallery } from '@/components/MediaGallery';
 import { QuickLinks } from '@/components/QuickLinks';
@@ -15,7 +14,6 @@ const Index = () => {
       <main>
         <VideoHero />
         <CountdownTimer />
-        <SchoolHighlights />
         <ProgrammeSchedule />
         <MediaGallery />
         <QuickLinks />

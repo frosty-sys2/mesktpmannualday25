@@ -5,11 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { LogOut, Calendar, Image, Link, Clock } from 'lucide-react';
+import { LogOut, Calendar, Image, Link, Clock, Bot } from 'lucide-react';
 import { ScheduleManager } from '@/components/admin/ScheduleManager';
 import { MediaManager } from '@/components/admin/MediaManager';
 import { LinksManager } from '@/components/admin/LinksManager';
 import { CountdownManager } from '@/components/admin/CountdownManager';
+import { AIModelManager } from '@/components/admin/AIModelManager';
 import { setAdminPassword, clearAdminPassword } from '@/lib/adminApi';
 
 const ADMIN_PASSWORD = 'Vasudev@2012';
@@ -128,7 +129,7 @@ const Admin = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="countdown" className="space-y-8">
-          <TabsList className="glass-card grid w-full max-w-lg grid-cols-4 p-1">
+          <TabsList className="glass-card grid w-full max-w-2xl grid-cols-5 p-1">
             <TabsTrigger value="countdown" className="gap-2">
               <Clock className="h-4 w-4" />
               <span className="hidden sm:inline">Countdown</span>
@@ -144,6 +145,10 @@ const Admin = () => {
             <TabsTrigger value="links" className="gap-2">
               <Link className="h-4 w-4" />
               <span className="hidden sm:inline">Links</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="gap-2">
+              <Bot className="h-4 w-4" />
+              <span className="hidden sm:inline">AI</span>
             </TabsTrigger>
           </TabsList>
 
@@ -161,6 +166,10 @@ const Admin = () => {
 
           <TabsContent value="links">
             <LinksManager />
+          </TabsContent>
+
+          <TabsContent value="ai">
+            <AIModelManager />
           </TabsContent>
         </Tabs>
       </main>
