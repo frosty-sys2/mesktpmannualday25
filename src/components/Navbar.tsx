@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Menu, X } from 'lucide-react';
+import { Home, Menu, X, Info } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import mesLogo from '@/assets/mes-logo.jpg';
 
 export const Navbar = () => {
@@ -31,13 +32,13 @@ export const Navbar = () => {
       }`}
     >
       <div className="container mx-auto flex items-center justify-between px-4">
-        <a
-          href="/"
+        <Link
+          to="/"
           className="flex items-center gap-3 font-display text-xl font-bold text-foreground transition-colors hover:text-primary"
         >
           <img src={mesLogo} alt="MES Campus School" className="w-10 h-10 rounded-full object-cover" />
           <span><span className="text-gradient-gold">MES Campus School,</span> Kuttippuram</span>
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden items-center gap-8 md:flex">
@@ -50,6 +51,13 @@ export const Navbar = () => {
               {item.label}
             </a>
           ))}
+          <Link
+            to="/more"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1"
+          >
+            <Info className="h-4 w-4" />
+            More
+          </Link>
           <a
             href="https://mescampusschool.gt.tc"
             target="_blank"
@@ -90,6 +98,14 @@ export const Navbar = () => {
                   {item.label}
                 </a>
               ))}
+              <Link
+                to="/more"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-lg font-medium text-foreground transition-colors hover:text-primary flex items-center gap-2"
+              >
+                <Info className="h-5 w-5" />
+                More
+              </Link>
               <a
                 href="https://mescampusschool.gt.tc"
                 target="_blank"

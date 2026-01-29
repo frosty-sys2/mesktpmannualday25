@@ -4,25 +4,17 @@ import { X, Send, Loader2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import aiLogo from '@/assets/ai-logo.png';
+import chatbotLogo from '@/assets/chatbot-logo.jpg';
 
 type Message = { role: 'user' | 'assistant'; content: string };
-
-const SUGGESTED_PROMPTS = [
-  "What's the programme schedule for Annual Day?",
-  "Tell me about MES Campus School",
-  "What activities are planned for the celebration?",
-];
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/annual-day-chat`;
 
 export const AIChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [visiblePrompts, setVisiblePrompts] = useState(SUGGESTED_PROMPTS);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,11 +22,6 @@ export const AIChatBot = () => {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
-
-  const removeSuggestion = (index: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setVisiblePrompts(prev => prev.filter((_, i) => i !== index));
-  };
 
   const streamChat = useCallback(async (userMessages: Message[], onDelta: (text: string) => void, onDone: () => void) => {
     const resp = await fetch(CHAT_URL, {
@@ -97,7 +84,6 @@ export const AIChatBot = () => {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
-    setShowSuggestions(false);
 
     let assistantSoFar = "";
     const upsertAssistant = (nextChunk: string) => {
@@ -127,11 +113,6 @@ export const AIChatBot = () => {
     }
   };
 
-  const handlePromptClick = (prompt: string) => {
-    setIsOpen(true);
-    sendMessage(prompt);
-  };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -150,38 +131,6 @@ export const AIChatBot = () => {
             exit={{ opacity: 0, scale: 0.8 }}
             className="fixed bottom-6 right-6 z-50"
           >
-            {/* Suggested Prompts */}
-            {showSuggestions && visiblePrompts.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute bottom-20 right-0 w-72 space-y-2"
-              >
-                {visiblePrompts.map((prompt, index) => (
-                  <motion.div
-                    key={prompt}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="relative group"
-                  >
-                    <button
-                      onClick={() => handlePromptClick(prompt)}
-                      className="w-full text-left glass-card rounded-lg p-3 text-sm text-foreground hover:border-primary/50 border border-border/50 transition-all pr-8"
-                    >
-                      {prompt}
-                    </button>
-                    <button
-                      onClick={(e) => removeSuggestion(index, e)}
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
-                    >
-                      <X className="w-3 h-3 text-muted-foreground" />
-                    </button>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -189,7 +138,7 @@ export const AIChatBot = () => {
               className="w-16 h-16 rounded-full bg-primary shadow-lg flex items-center justify-center animate-glow overflow-hidden"
               style={{ boxShadow: '0 0 30px hsla(42, 78%, 60%, 0.4)' }}
             >
-              <img src={aiLogo} alt="AI" className="w-16 h-16 object-cover scale-110" />
+              <img src={chatbotLogo} alt="AI" className="w-16 h-16 object-cover scale-110" />
             </motion.button>
           </motion.div>
         )}
@@ -220,7 +169,7 @@ export const AIChatBot = () => {
               <div className="p-4 border-b border-border flex items-center justify-between bg-card/80 backdrop-blur">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
-                    <img src={aiLogo} alt="AI" className="w-10 h-10 object-cover" />
+                    <img src={chatbotLogo} alt="AI" className="w-10 h-10 object-cover" />
                   </div>
                   <div>
                     <p className="font-bold text-primary text-sm">ANNUAL DAY ASSISTANT</p>
@@ -246,23 +195,12 @@ export const AIChatBot = () => {
                 {messages.length === 0 && (
                   <div className="text-center py-8">
                     <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 overflow-hidden">
-                      <img src={aiLogo} alt="AI" className="w-20 h-20 object-cover" />
+                      <img src={chatbotLogo} alt="AI" className="w-20 h-20 object-cover" />
                     </div>
                     <h3 className="font-semibold text-foreground mb-2">Annual Day AI Assistant</h3>
-                    <p className="text-sm text-muted-foreground mb-6">
+                    <p className="text-sm text-muted-foreground">
                       Ask me anything about MES Campus School's Annual Day celebration!
                     </p>
-                    <div className="space-y-2">
-                      {visiblePrompts.map((prompt, index) => (
-                        <button
-                          key={prompt}
-                          onClick={() => sendMessage(prompt)}
-                          className="w-full text-left glass-card rounded-lg p-3 text-sm text-foreground hover:border-primary/50 border border-border/50 transition-all"
-                        >
-                          {prompt}
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 )}
 
