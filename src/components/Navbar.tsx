@@ -4,6 +4,8 @@ import { Home, Menu, X, Info, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import mesLogo from '@/assets/mes-logo.jpg';
 
+const SHOW_SCHOOL_HOME = false; // 👈 toggle anytime
+
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,8 +43,15 @@ export const Navbar = () => {
           to="/"
           className="flex items-center gap-3 font-display text-xl font-bold text-foreground transition-colors hover:text-primary"
         >
-          <img src={mesLogo} alt="MES Campus School" className="w-10 h-10 rounded-full object-cover" />
-          <span><span className="text-gradient-gold">MES Campus School,</span> Kuttippuram</span>
+          <img
+            src={mesLogo}
+            alt="MES Campus School"
+            className="h-10 w-10 rounded-full object-cover"
+          />
+          <span>
+            <span className="text-gradient-gold">MES Campus School,</span>{' '}
+            Kuttippuram
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -56,28 +65,33 @@ export const Navbar = () => {
               {item.label}
             </a>
           ))}
+
           {pageLinks.map((link) => {
             const Icon = link.icon;
             return (
               <Link
                 key={link.to}
                 to={link.to}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1"
+                className="flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 <Icon className="h-4 w-4" />
                 {link.label}
               </Link>
             );
           })}
-          <a
-            href="https://mescampusschool.gt.tc"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-          >
-            <Home className="h-4 w-4" />
-            <span>School Home</span>
-          </a>
+
+          {/* School Home (toggleable) */}
+          {SHOW_SCHOOL_HOME && (
+            <a
+              href="https://mescampusschool.gt.tc"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              <Home className="h-4 w-4" />
+              <span>School Home</span>
+            </a>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -85,7 +99,11 @@ export const Navbar = () => {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="rounded-lg p-2 text-foreground md:hidden"
         >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isMobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
       </div>
 
@@ -109,6 +127,7 @@ export const Navbar = () => {
                   {item.label}
                 </a>
               ))}
+
               {pageLinks.map((link) => {
                 const Icon = link.icon;
                 return (
@@ -116,22 +135,26 @@ export const Navbar = () => {
                     key={link.to}
                     to={link.to}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-lg font-medium text-foreground transition-colors hover:text-primary flex items-center gap-2"
+                    className="flex items-center gap-2 text-lg font-medium text-foreground transition-colors hover:text-primary"
                   >
                     <Icon className="h-5 w-5" />
                     {link.label}
                   </Link>
                 );
               })}
-              <a
-                href="https://mescampusschool.gt.tc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3 font-semibold text-primary-foreground"
-              >
-                <Home className="h-5 w-5" />
-                <span>Go to School Home</span>
-              </a>
+
+              {/* Mobile School Home (toggleable) */}
+              {SHOW_SCHOOL_HOME && (
+                <a
+                  href="https://mescampusschool.gt.tc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3 font-semibold text-primary-foreground"
+                >
+                  <Home className="h-5 w-5" />
+                  <span>Go to School Home</span>
+                </a>
+              )}
             </div>
           </motion.div>
         )}
