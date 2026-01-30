@@ -40,7 +40,20 @@ const steps: Step[] = [
   },
 ];
 
+/**
+ * Toggle this flag to safely disable the onboarding wizard without removing the code.
+ * - Set to `true` to disable the onboarding (component will render nothing).
+ * - Set to `false` to re-enable.
+ *
+ * Option: replace with an env var like `process.env.NEXT_PUBLIC_ENABLE_ONBOARDING === 'true'`
+ * if you prefer runtime configuration.
+ */
+const DISABLE_ONBOARDING = true;
+
 export const OnboardingWizard = () => {
+  // When disabled, return null so the component stays in the codebase but does nothing.
+  if (DISABLE_ONBOARDING) return null;
+
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [mounted, setMounted] = useState(false); // SSR-safe portal mount
