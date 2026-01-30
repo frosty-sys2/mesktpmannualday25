@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
 import { Award, Users, Activity, Calendar, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
+import { MobileNav } from '@/components/MobileNav';
 
 const highlights = [
   {
@@ -34,20 +37,22 @@ const exploreItems = [
 
 const More = () => {
   return (
-    <div className="min-h-screen bg-background pt-24">
-      {/* Back Button */}
-      <div className="container mx-auto px-4 mb-8">
-        <Link 
-          to="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Link>
-      </div>
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <Navbar />
 
-      <section className="py-12 px-4 bg-background">
+      <section className="py-12 px-4 bg-background pt-24">
         <div className="container mx-auto max-w-7xl">
+          {/* Back Button */}
+          <div className="mb-8">
+            <Link 
+              to="/"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </Link>
+          </div>
+
           {/* What Makes Us Special */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -177,6 +182,9 @@ const More = () => {
           </motion.div>
         </div>
       </section>
+
+      <Footer />
+      <MobileNav />
     </div>
   );
 };
