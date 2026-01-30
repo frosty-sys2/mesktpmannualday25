@@ -47,6 +47,36 @@ export type Database = {
         }
         Relationships: []
       }
+      community_posts: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          media_urls: string[] | null
+          updated_at: string
+          user_name: string
+          user_role: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          media_urls?: string[] | null
+          updated_at?: string
+          user_name: string
+          user_role?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          media_urls?: string[] | null
+          updated_at?: string
+          user_name?: string
+          user_role?: string
+        }
+        Relationships: []
+      }
       groq_api_keys: {
         Row: {
           api_key_encrypted: string

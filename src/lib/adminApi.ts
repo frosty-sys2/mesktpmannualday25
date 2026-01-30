@@ -71,6 +71,13 @@ export const linksApi = {
   delete: (id: string) => adminRequest({ action: 'delete', table: 'quick_links', id }),
 };
 
+// Community operations
+export const communityApi = {
+  list: () => adminRequest({ action: 'list', table: 'community_posts' }),
+  update: (id: string, data: any) => adminRequest({ action: 'update', table: 'community_posts', id, data }),
+  delete: (id: string) => adminRequest({ action: 'delete', table: 'community_posts', id }),
+};
+
 // Settings operations
 export const settingsApi = {
   get: async (key: string) => {
