@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Zap, Users, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,11 @@ const steps: Step[] = [
 export const OnboardingWizard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [mounted, setMounted] = useState(false); // SSR-safe portal mount
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('mes_onboarding_complete');
@@ -84,7 +90,8 @@ export const OnboardingWizard = () => {
 
   // Responsive: adjust position and width for mobile
   const getPositionClasses = () => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
+    // mobile
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
       switch (step.position) {
         case 'top':
           return 'top-4 left-1/2 -translate-x-1/2 px-2 w-[98vw] max-w-full';
@@ -105,7 +112,7 @@ export const OnboardingWizard = () => {
     }
   };
 
-  return (
+  const content = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -221,4 +228,8 @@ export const OnboardingWizard = () => {
       )}
     </AnimatePresence>
   );
+
+  // Render via portal so fixed positioning is always relative to the viewport
+  if (!mounted) return null;
+  return createPortal(content, document.body);
 };
