@@ -59,7 +59,6 @@ export const OnboardingWizard = () => {
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
-      
       // Scroll to target if exists
       const nextStep = steps[currentStep + 1];
       if (nextStep.targetId) {
@@ -83,7 +82,19 @@ export const OnboardingWizard = () => {
 
   const step = steps[currentStep];
 
+  // Responsive: adjust position and width for mobile
   const getPositionClasses = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      switch (step.position) {
+        case 'top':
+          return 'top-4 left-1/2 -translate-x-1/2 px-2 w-[98vw] max-w-full';
+        case 'bottom':
+          return 'bottom-28 left-1/2 -translate-x-1/2 px-2 w-[98vw] max-w-full'; // Avoid mobile nav bar
+        default:
+          return 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 w-[98vw] max-w-full';
+      }
+    }
+    // Desktop logic
     switch (step.position) {
       case 'top':
         return 'top-24 left-1/2 -translate-x-1/2';
@@ -113,7 +124,7 @@ export const OnboardingWizard = () => {
               animate={{ opacity: 1 }}
               className="fixed inset-0 z-[99] pointer-events-none"
             >
-              <div 
+              <div
                 className="absolute bg-primary/20 rounded-2xl ring-4 ring-primary animate-pulse"
                 style={{
                   top: document.getElementById(step.targetId)?.getBoundingClientRect().top ?? 0,
@@ -125,18 +136,21 @@ export const OnboardingWizard = () => {
             </motion.div>
           )}
 
-          {/* Tooltip Card */}
+          {/* Tooltip Card - mobile responsive */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`fixed z-[101] w-[90vw] max-w-md ${getPositionClasses()}`}
+            className={`fixed z-[101] ${getPositionClasses()}`}
           >
-            <div className="glass-card rounded-2xl p-6 border border-primary/30 shadow-2xl">
+            <div className="glass-card rounded-2xl p-4 sm:p-6 border border-primary/30 shadow-2xl">
               {/* Close button */}
               <button
                 onClick={handleSkip}
-                className="absolute top-3 right-3 p-1 rounded-full hover:bg-muted transition-colors"
+                className="absolute top-3 right-3 p-2 rounded-full hover:bg-muted transition-colors"
+                tabIndex={0}
+                aria-label="Close"
+                style={{ minWidth: 44, minHeight: 44 }} // mobile touch target
               >
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
@@ -147,11 +161,11 @@ export const OnboardingWizard = () => {
                   <div
                     key={index}
                     className={`h-1.5 rounded-full transition-all ${
-                      index === currentStep 
-                        ? 'w-6 bg-primary' 
-                        : index < currentStep 
-                          ? 'w-1.5 bg-primary/50' 
-                          : 'w-1.5 bg-muted'
+                      index === currentStep
+                        ? 'w-6 bg-primary'
+                        : index < currentStep
+                        ? 'w-1.5 bg-primary/50'
+                        : 'w-1.5 bg-muted'
                     }`}
                   />
                 ))}
@@ -179,20 +193,24 @@ export const OnboardingWizard = () => {
                   onClick={handlePrev}
                   disabled={currentStep === 0}
                   className="opacity-70"
+                  style={{ minWidth: 44, minHeight: 44 }} // touch friendly
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Back
                 </Button>
-
                 <Button
                   variant="ghost"
                   onClick={handleSkip}
                   className="text-muted-foreground"
+                  style={{ minWidth: 44, minHeight: 44 }}
                 >
                   Skip
                 </Button>
-
-                <Button onClick={handleNext} className="bg-primary hover:bg-primary/90">
+                <Button
+                  onClick={handleNext}
+                  className="bg-primary hover:bg-primary/90"
+                  style={{ minWidth: 44, minHeight: 44 }}
+                >
                   {currentStep === steps.length - 1 ? 'Get Started' : 'Next'}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
