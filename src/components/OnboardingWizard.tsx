@@ -14,26 +14,30 @@ type Step = {
 const steps: Step[] = [
   {
     title: 'Welcome to MES Campus School!',
-    description: 'Let us show you around our Annual Day website. Click Next to begin the tour.',
+    description:
+      'Let us show you around our Annual Day website. Click Next to begin the tour.',
     icon: <span className="text-4xl">🎉</span>,
     position: 'center',
   },
   {
     title: 'Programme Schedule',
-    description: 'Find the complete Annual Day programme schedule here. See all performances, timings, and events.',
+    description:
+      'Find the complete Annual Day programme schedule here. See all performances, timings, and events.',
     icon: <Calendar className="w-8 h-8 text-primary" />,
     targetId: 'schedule',
     position: 'top',
   },
   {
     title: 'AI Assistant',
-    description: 'Have questions about Annual Day? Our AI assistant can help! Ask about schedules, performers, or anything else.',
+    description:
+      'Have questions about Annual Day? Our AI assistant can help! Ask about schedules, performers, or anything else.',
     icon: <Zap className="w-8 h-8 text-primary" />,
     position: 'bottom',
   },
   {
     title: 'Community Board',
-    description: 'Share your thoughts, photos, and videos! Students, parents, and teachers can all participate.',
+    description:
+      'Share your thoughts, photos, and videos! Students, parents, and teachers can all participate.',
     icon: <Users className="w-8 h-8 text-primary" />,
     position: 'center',
   },
@@ -44,9 +48,9 @@ export const OnboardingWizard = () => {
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem('mes_onboarding_complete');
-    if (!hasSeenOnboarding) {
-      const timer = setTimeout(() => setIsOpen(true), 1000);
+    const hasSeen = localStorage.getItem('mes_onboarding_complete');
+    if (!hasSeen) {
+      const timer = setTimeout(() => setIsOpen(true), 800);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -58,13 +62,15 @@ export const OnboardingWizard = () => {
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-      
-      // Scroll to target if exists
-      const nextStep = steps[currentStep + 1];
-      if (nextStep.targetId) {
-        const element = document.getElementById(nextStep.targetId);
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const next = currentStep + 1;
+      setCurrentStep(next);
+
+      const target = steps[next].targetId;
+      if (target) {
+        document.getElementById(target)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
       }
     } else {
       handleComplete();
@@ -72,18 +78,17 @@ export const OnboardingWizard = () => {
   };
 
   const handlePrev = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleSkip = () => {
-    handleComplete();
+    if (currentStep > 0) setCurrentStep((s) => s - 1);
   };
 
   const step = steps[currentStep];
 
+  // 📱 Mobile-safe positioning
   const getPositionClasses = () => {
+    if (window.innerWidth < 640) {
+      return 'bottom-4 left-1/2 -translate-x-1/2';
+    }
+
     switch (step.position) {
       case 'top':
         return 'top-24 left-1/2 -translate-x-1/2';
@@ -106,94 +111,79 @@ export const OnboardingWizard = () => {
             className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100]"
           />
 
-          {/* Spotlight effect for targeted elements */}
-          {step.targetId && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="fixed inset-0 z-[99] pointer-events-none"
-            >
-              <div 
-                className="absolute bg-primary/20 rounded-2xl ring-4 ring-primary animate-pulse"
-                style={{
-                  top: document.getElementById(step.targetId)?.getBoundingClientRect().top ?? 0,
-                  left: document.getElementById(step.targetId)?.getBoundingClientRect().left ?? 0,
-                  width: document.getElementById(step.targetId)?.offsetWidth ?? 0,
-                  height: Math.min(document.getElementById(step.targetId)?.offsetHeight ?? 0, 400),
-                }}
-              />
-            </motion.div>
-          )}
-
           {/* Tooltip Card */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className={`fixed z-[101] w-[90vw] max-w-md ${getPositionClasses()}`}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className={`fixed z-[101] w-[92vw] max-w-md ${getPositionClasses()}`}
           >
-            <div className="glass-card rounded-2xl p-6 border border-primary/30 shadow-2xl">
-              {/* Close button */}
+            <div
+              className="
+                glass-card rounded-2xl border border-primary/30 shadow-2xl
+                max-h-[85dvh] flex flex-col
+                p-5 sm:p-6
+              "
+            >
+              {/* Close */}
               <button
-                onClick={handleSkip}
-                className="absolute top-3 right-3 p-1 rounded-full hover:bg-muted transition-colors"
+                onClick={handleComplete}
+                className="absolute top-3 right-3 p-1 rounded-full hover:bg-muted"
               >
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
 
-              {/* Step indicator */}
-              <div className="flex justify-center gap-2 mb-4">
-                {steps.map((_, index) => (
+              {/* Progress */}
+              <div className="flex justify-center gap-2 mb-3">
+                {steps.map((_, i) => (
                   <div
-                    key={index}
+                    key={i}
                     className={`h-1.5 rounded-full transition-all ${
-                      index === currentStep 
-                        ? 'w-6 bg-primary' 
-                        : index < currentStep 
-                          ? 'w-1.5 bg-primary/50' 
-                          : 'w-1.5 bg-muted'
+                      i === currentStep
+                        ? 'w-6 bg-primary'
+                        : i < currentStep
+                        ? 'w-1.5 bg-primary/50'
+                        : 'w-1.5 bg-muted'
                     }`}
                   />
                 ))}
               </div>
 
-              {/* Icon */}
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                  {step.icon}
+              {/* Scrollable content */}
+              <div className="flex-1 overflow-y-auto px-1">
+                <div className="flex justify-center mb-4">
+                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
+                    {step.icon}
+                  </div>
                 </div>
+
+                <h3 className="text-lg sm:text-xl font-bold text-center mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-muted-foreground text-center mb-4">
+                  {step.description}
+                </p>
               </div>
 
-              {/* Content */}
-              <h3 className="text-xl font-display font-bold text-center text-foreground mb-2">
-                {step.title}
-              </h3>
-              <p className="text-muted-foreground text-center text-sm mb-6">
-                {step.description}
-              </p>
-
               {/* Navigation */}
-              <div className="flex items-center justify-between">
+              <div className="pt-3 border-t flex items-center justify-between gap-2">
                 <Button
                   variant="ghost"
                   onClick={handlePrev}
                   disabled={currentStep === 0}
-                  className="opacity-70"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Back
                 </Button>
 
-                <Button
-                  variant="ghost"
-                  onClick={handleSkip}
-                  className="text-muted-foreground"
-                >
+                <Button variant="ghost" onClick={handleComplete}>
                   Skip
                 </Button>
 
-                <Button onClick={handleNext} className="bg-primary hover:bg-primary/90">
-                  {currentStep === steps.length - 1 ? 'Get Started' : 'Next'}
+                <Button onClick={handleNext}>
+                  {currentStep === steps.length - 1
+                    ? 'Get Started'
+                    : 'Next'}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
